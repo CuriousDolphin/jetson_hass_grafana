@@ -1,0 +1,81 @@
+version: '3.8'
+volumes:
+  prometheus_data: {}
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./.HASS_LL_TOKEN:/etc/prometheus/HASS_LL_TOKEN
+      - prometheus_data:/prometheus
+    command:
+      - '--enable-feature=expand-external-labels'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
+    ports:
+      - 9090:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: '472'
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+      - ./grafana_datasource.yml:/etc/grafana/provisioning/datasource.yml
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,marcusolsson-dynamictext-panel
+      #- GF_AUTH_ANONYMOUS_ENABLED=true #added
+      #- GF_SECURITY_COOKIE_SAMESITE=none #added
+      - GF_SECURITY_ALLOW_EMBEDDING=true #added
+      #- GF_RENDERING_SERVER_URL=http://g-renderer:3131/render
+      #- GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      #- GF_LOG_FILTERS=rendering:debug
+      #g-renderer:
+      #  image: grafana/grafana-image-renderer:latest
+      #  ports:
+      #    - 3131
+  home-assistant:
+    container_name: hass
+    image: homeassistant/home-assistant
+    ports:
+      - 8000:8123
+    volumes:
+      #- ./hass_configuration.yml:/config/configuration.yaml
+      - ./hass-data:/config
+    privileged: true
+    restart: always
+    depends_on:
+      - grafana
+  cadvisor:
+    container_name: cadvisor
+    # metrics about containers
+    image: gcr.io/cadvisor/cadvisor-arm64:v0.46.0
+    volumes:
+      #- /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8585:8080
+    command:
+      - '--housekeeping_interval=15s'
+      - '--docker_only=true'
+    restart: always
+  jetson_collector:
+    build:
+      context: ./jetson_collector
+      dockerfile: jetson_collector.Dockerfile
+    container_name: jetson_collector
+    #ports:
+    #  - 3030:3030
+    restart: always
+    volumes:
+      - /run/jtop.sock:/run/jtop.sock
+    environment:
+      - COLLECT_TIME=5
+      - COLLECTOR_PORT=3030

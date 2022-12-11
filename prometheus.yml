@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'nvidia_jetson'
+    static_configs:
+    - targets: ['jetson_collector:3030']
+  - job_name: 'jetson-containers'
+    static_configs:
+    - targets: ['cadvisor:8080']
+  - job_name: 'hass'
+    metrics_path: /api/prometheus
+    scrape_interval: 15s
+    authorization:
+      credentials_file: /etc/prometheus/HASS_LL_TOKEN
+    static_configs:
+    - targets: ['hass:8123']
+  

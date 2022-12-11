@@ -1,0 +1,4 @@
+.HASS_LL_TOKEN
+.env
+grafana-data
+hass-data
