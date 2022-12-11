@@ -3,6 +3,11 @@
 The jetson prometheus exporter is from:
 https://github.com/laminair/jetson_stats_node_exporter
 
+
+![Home Assistant](/misc/hass.jpg "Home assistant")
+
+![grafana](/misc/grafana.jpg "Grafana")
+
 # Requirements
 - docker-compose
 - jetson-stats
