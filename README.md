@@ -1,7 +1,8 @@
 # Jetson + Home Assistant + Grafana + Prometheus = <3
 
-The jetson prometheus exporter is from:
-https://github.com/laminair/jetson_stats_node_exporter
+The jetson prometheus collector is from:
+https://github.com/svcavallar/jetson-stats-grafana-dashboard
+but is delivered with docker instead of systemd service.
 
 ## Home assistant:
 
