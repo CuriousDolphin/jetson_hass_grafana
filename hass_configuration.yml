@@ -10,21 +10,54 @@ frontend:
 tts:
   - platform: google_translate
 
+http:
+  ip_ban_enabled: true
+  login_attempts_threshold: 4
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.16.0.0/12  # Docker network
+
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+# rest:
+#   scan_interval: 15
+#   resource: http://192.168.1.254/api/v8/connection/
+#   sensor:
+#     - name: "router_connection_info"
+#       json_attributes_path: "$.result"
+#       value_template: "{{ value_json.result }}"
+#       json_attributes:
+#         - "type"
+#         - "rate_down"
+#         - "rate_up"
+#         - "bandwidth_up"
+#         - "bandwidth_down"
 
 prometheus:
-  namespace: home_assistant
-
-
+  namespace: hass
 binary_sensor:
   - platform: ping
     host: 192.168.1.254
     name: Router
     count: 3
     scan_interval: 30
-
+  - platform: ping
+    host: 192.168.1.156
+    name: Desktop
+    count: 3
+    scan_interval: 30
+  - platform: ping
+    host: 192.168.1.160
+    name: Laptop-Chiara
+    count: 3
+    scan_interval: 30
+  - platform: ping
+    host: 192.168.1.33
+    name: Firestick
+    count: 3
+    scan_interval: 30
 sensor:
   - platform: systemmonitor
     resources:
@@ -60,3 +93,11 @@ sensor:
       - type: processor_use
       - type: processor_temperature
       - type: last_boot
+
+# camera:
+#   - platform: generic
+#     name: grafana_jetson_containers
+#     still_image_url: http://grafana:3000/d/hr8-CooGk/jetson-containers?from=1670679286870&to=1670681086870&orgId=1&refresh=5m&viewPanel=1
+#     username: !secret GRAFANA_USER
+#     password: !secret GRAFANA_PASSWORD
+#     verify_ssl: false

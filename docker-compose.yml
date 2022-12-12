@@ -79,3 +79,20 @@ services:
     environment:
       - COLLECT_TIME=5
       - COLLECTOR_PORT=3030
+  swag:
+    image: linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1001
+      - PGID=1001
+      - TZ=Europe/Paris
+    env_file:
+      - ./.swag.env
+    volumes:
+      - ./swag-data:/config
+      #- ./homeassistant.subdomain.conf:/config/nginx/proxy-confs/homeassistant.subdomain.conf
+    ports:
+      - 443:443
+    restart: unless-stopped

@@ -29,3 +29,14 @@ In order to allow prometheus to scrape HASS data create a .HASS_LL_TOKEN file co
 # install hacs (store) on home assistant
     docker exec -it home-assistant bash
     wget -O - https://get.hacs.xyz | bash -
+
+
+# SSL Reverse proxy Swag (Remote access to  HASS/GRAFANA)
+    environment:
+      - PUID=1001
+      - PGID=1001
+      - TZ=Europe/Paris
+      - URL=YOUR-DOMAIN.duckdns.org
+      - VALIDATION=duckdns
+      - DUCKDNSTOKEN=YOUR-TOKEN
+      - SUBDOMAINS=wildcard

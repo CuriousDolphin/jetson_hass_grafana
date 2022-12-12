@@ -2,3 +2,6 @@
 .env
 grafana-data
 hass-data
+swag.env
+.swag.env
+swag-data
