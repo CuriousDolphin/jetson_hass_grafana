@@ -40,3 +40,5 @@ In order to allow prometheus to scrape HASS data create a .HASS_LL_TOKEN file co
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=YOUR-TOKEN
       - SUBDOMAINS=wildcard
+
+    copy nginx.grafana.subdomain to 

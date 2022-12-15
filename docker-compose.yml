@@ -26,7 +26,7 @@ services:
       - 3000:3000
     volumes:
       - ./grafana-data:/var/lib/grafana
-      - ./grafana_datasource.yml:/etc/grafana/provisioning/datasource.yml
+      - ./grafana.datasource.yml:/etc/grafana/provisioning/datasource.yml
     environment:
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,marcusolsson-dynamictext-panel
       #- GF_AUTH_ANONYMOUS_ENABLED=true #added
@@ -71,8 +71,6 @@ services:
       context: ./jetson_collector
       dockerfile: jetson_collector.Dockerfile
     container_name: jetson_collector
-    #ports:
-    #  - 3030:3030
     restart: always
     volumes:
       - /run/jtop.sock:/run/jtop.sock
@@ -96,3 +94,10 @@ services:
     ports:
       - 443:443
     restart: unless-stopped
+  # volumes:
+  #   swag_data:
+  #     driver: local
+  #     driver_opts:
+  #       type: 'none'
+  #       o: 'bind'
+  #       device: './swag-data'
