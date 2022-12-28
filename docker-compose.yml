@@ -1,6 +1,12 @@
 version: '3.8'
 volumes:
   prometheus_data: {}
+
+networks:
+  front-tier:
+  back-tier:
+
+
 services:
   prometheus:
     image: prom/prometheus:latest
@@ -17,6 +23,8 @@ services:
       - 9090:9090
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - back-tier
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -32,13 +40,9 @@ services:
       #- GF_AUTH_ANONYMOUS_ENABLED=true #added
       #- GF_SECURITY_COOKIE_SAMESITE=none #added
       - GF_SECURITY_ALLOW_EMBEDDING=true #added
-      #- GF_RENDERING_SERVER_URL=http://g-renderer:3131/render
-      #- GF_RENDERING_CALLBACK_URL=http://grafana:3000/
-      #- GF_LOG_FILTERS=rendering:debug
-      #g-renderer:
-      #  image: grafana/grafana-image-renderer:latest
-      #  ports:
-      #    - 3131
+    networks:
+      - back-tier
+      - front-tier
   home-assistant:
     container_name: hass
     image: homeassistant/home-assistant
@@ -47,7 +51,11 @@ services:
     volumes:
       #- ./hass_configuration.yml:/config/configuration.yaml
       - ./hass-data:/config
+      - ./hass-media:/data/media:ro
     privileged: true
+    networks:
+      - back-tier
+      - front-tier
     restart: always
     depends_on:
       - grafana
@@ -66,6 +74,8 @@ services:
       - '--housekeeping_interval=15s'
       - '--docker_only=true'
     restart: always
+    networks:
+      - back-tier
   jetson_collector:
     build:
       context: ./jetson_collector
@@ -77,6 +87,8 @@ services:
     environment:
       - COLLECT_TIME=5
       - COLLECTOR_PORT=3030
+    networks:
+      - back-tier
   swag:
     image: linuxserver/swag
     container_name: swag
@@ -90,14 +102,53 @@ services:
       - ./.swag.env
     volumes:
       - ./swag-data:/config
-      #- ./homeassistant.subdomain.conf:/config/nginx/proxy-confs/homeassistant.subdomain.conf
     ports:
       - 443:443
     restart: unless-stopped
-  # volumes:
-  #   swag_data:
-  #     driver: local
-  #     driver_opts:
-  #       type: 'none'
-  #       o: 'bind'
-  #       device: './swag-data'
+    networks:
+      - front-tier
+      - back-tier
+  # nginx_prom_exporter:
+  #   container_name: nginx_prom_exporter
+  #   image: nginx/nginx-prometheus-exporter:0.10.0
+  #   command:
+  #     - '-nginx.scrape-uri=https://grafana.curiousdolphin.duckdns.org:16666/nginx_status'
+  #   networks:
+  #     - back-tier
+
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - ${LOCAL_IP}:53:53/tcp #https://github.com/sameersbn/docker-bind/issues/65
+      - ${LOCAL_IP}:53:53/udp
+      - "${LOCAL_IP}:67:67/udp" # Only required if you are using Pi-hole as your DHCP server
+      - 8181:80/tcp
+    environment:
+      TZ: 'Europe/Rome'
+      WEBPASSWORD: ${PIHOLE_WEB_PWD}
+      PIHOLE_DNS_: 1.1.1.1;1.0.0.1
+      # Volumes store your data between container upgrades
+    volumes:
+      - './pihole-data/pihole:/etc/pihole'
+      - './pihole-data/dnsmasq.d:/etc/dnsmasq.d'
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
+    restart: unless-stopped
+    networks:
+      - front-tier
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    volumes:
+      #- "./mosquitto.conf:/mosquitto/config/mosquitto.conf"
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/log:/mosquitto/log
+      - ./mosquitto/data/:/mosquitto/data
+    restart: always
+    ports:
+      - 1883:1883
+    networks:
+      - back-tier

@@ -1,16 +1,20 @@
-start-server:
+start:
 	@. ./scripts/copy_conf.sh;\
-	docker-compose up
+	docker-compose up 
 
 restart:
 	@. ./scripts/copy_conf.sh;\
-	docker-compose restart
+	docker-compose restart 
 
-start-server-build:
+restart-hass:
 	@. ./scripts/copy_conf.sh;\
-	docker-compose up --build
+	docker-compose restart home-assistant
 
-stop-server:
+start-build:
+	@. ./scripts/copy_conf.sh;\
+	docker-compose up --build 
+
+stop:
 	@. ./scripts/copy_conf.sh;\
 	docker-compose down
 

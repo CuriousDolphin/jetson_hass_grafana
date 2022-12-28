@@ -17,10 +17,17 @@ http:
   trusted_proxies:
     - 172.16.0.0/12  # Docker network
 
-
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+
+
+ifttt:
+  key: !secret IFTTT_API_KEY
+
+homeassistant:
+  media_dirs:
+    local: /media
 # rest:
 #   scan_interval: 15
 #   resource: http://192.168.1.254/api/v8/connection/
@@ -58,7 +65,13 @@ binary_sensor:
     name: Firestick
     count: 3
     scan_interval: 30
+
 sensor:
+  - platform: openhardwaremonitor
+    host: 192.168.1.156
+  - platform: time_date
+    display_options:
+      - 'time'
   - platform: systemmonitor
     resources:
       - type: disk_use_percent

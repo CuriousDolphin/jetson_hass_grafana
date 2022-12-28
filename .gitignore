@@ -6,3 +6,8 @@ swag.env
 .swag.env
 swag-data
 bak-data
+pihole-data
+.pihole.env
+.env.pihole
+mosquitto
+hass-media
