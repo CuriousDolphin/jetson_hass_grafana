@@ -1,0 +1,116 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+http:
+  ip_ban_enabled: true
+  login_attempts_threshold: 4
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.16.0.0/12  # Docker network
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+
+ifttt:
+  key: !secret IFTTT_API_KEY
+
+homeassistant:
+  media_dirs:
+    local: /media
+# rest:
+#   scan_interval: 15
+#   resource: http://192.168.1.254/api/v8/connection/
+#   sensor:
+#     - name: "router_connection_info"
+#       json_attributes_path: "$.result"
+#       value_template: "{{ value_json.result }}"
+#       json_attributes:
+#         - "type"
+#         - "rate_down"
+#         - "rate_up"
+#         - "bandwidth_up"
+#         - "bandwidth_down"
+
+prometheus:
+  namespace: hass
+binary_sensor:
+  - platform: ping
+    host: 192.168.1.254
+    name: Router
+    count: 3
+    scan_interval: 30
+  - platform: ping
+    host: 192.168.1.156
+    name: Desktop
+    count: 3
+    scan_interval: 30
+  - platform: ping
+    host: 192.168.1.160
+    name: Laptop-Chiara
+    count: 3
+    scan_interval: 30
+  - platform: ping
+    host: 192.168.1.33
+    name: Firestick
+    count: 3
+    scan_interval: 30
+
+sensor:
+  - platform: openhardwaremonitor
+    host: 192.168.1.156
+  - platform: time_date
+    display_options:
+      - 'time'
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: /config
+      - type: disk_use
+      - type: disk_free
+      - type: memory_use_percent
+      - type: memory_use
+      - type: memory_free
+      - type: swap_use_percent
+      - type: swap_use
+      - type: swap_free
+      - type: load_1m
+      - type: load_5m
+      - type: load_15m
+      - type: network_in
+        arg: eth0
+      - type: network_out
+        arg: eth0
+      - type: throughput_network_in
+        arg: eth0
+      - type: throughput_network_out
+        arg: eth0
+      - type: packets_in
+        arg: eth0
+      - type: packets_out
+        arg: eth0
+      - type: ipv4_address
+        arg: eth0
+      - type: ipv6_address
+        arg: eth0
+      - type: processor_use
+      - type: processor_temperature
+      - type: last_boot
+
+# camera:
+#   - platform: generic
+#     name: grafana_jetson_containers
+#     still_image_url: http://grafana:3000/d/hr8-CooGk/jetson-containers?from=1670679286870&to=1670681086870&orgId=1&refresh=5m&viewPanel=1
+#     username: !secret GRAFANA_USER
+#     password: !secret GRAFANA_PASSWORD
+#     verify_ssl: false
