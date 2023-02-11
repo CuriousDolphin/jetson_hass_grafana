@@ -45,13 +45,13 @@ services:
       - front-tier
   home-assistant:
     container_name: hass
-    image: homeassistant/home-assistant
+    image: homeassistant/home-assistant:beta
     ports:
       - 8000:8123
     volumes:
       #- ./hass_configuration.yml:/config/configuration.yaml
       - ./hass-data:/config
-      - ./hass-media:/data/media:ro
+      - ./hass-media:/data/media
     privileged: true
     networks:
       - back-tier
@@ -99,7 +99,7 @@ services:
       - PGID=1001
       - TZ=Europe/Paris
     env_file:
-      - ./.swag.env
+      - ./.env
     volumes:
       - ./swag-data:/config
     ports:
@@ -108,6 +108,7 @@ services:
     networks:
       - front-tier
       - back-tier
+
   # nginx_prom_exporter:
   #   container_name: nginx_prom_exporter
   #   image: nginx/nginx-prometheus-exporter:0.10.0
@@ -152,3 +153,41 @@ services:
       - 1883:1883
     networks:
       - back-tier
+  # webrtcserver:
+  #   container_name: webrtcserver
+  #   build:
+  #     context: ./webRTC
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8989:8080
+  #   networks:
+  #     #- front-tier
+  #     - back-tier
+  # frigate:
+  #   #image: yeahme49/frigatetensor:latest
+  #   container_name: frigate
+  #   privileged: true # this may not be necessary for all setups
+  #   restart: unless-stopped
+  #   image: blakeblackshear/frigate:stable
+  #   shm_size: "64mb" # update for your cameras based on calculation above
+  #   devices:
+  #     - /dev/bus/usb:/dev/bus/usb # passes the USB Coral, needs to be modified for other versions
+  #     - /dev/apex_0:/dev/apex_0 # passes a PCIe Coral, follow driver instructions here https://coral.ai/docs/m2/get-started/#2a-on-linux
+  #     - /dev/dri/renderD128 # for intel hwaccel, needs to be updated for your hardware
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ./frigate.config.yml:/config/config.yml:ro
+  #     - ./frigate-data:/media/frigate
+  #     - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+  #       target: /tmp/cache
+  #       tmpfs:
+  #         size: 10000000
+  #   networks:
+  #     - back-tier
+  #   ports:
+  #     - "5000:5000"
+  #     - "1935:1935" # RTMP feeds
+  #   environment:
+  #     FRIGATE_RTSP_PASSWORD: "pippopluto"
+  #     NVIDIA_VISIBLE_DEVICES: all
+  #     NVIDIA_DRIVER_CAPABILITIES: "compute,utility,video"
