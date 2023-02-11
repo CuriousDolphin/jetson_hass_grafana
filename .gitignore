@@ -11,3 +11,6 @@ pihole-data
 .env.pihole
 mosquitto
 hass-media
+frigate-data
+frigate.config.yml
+venv

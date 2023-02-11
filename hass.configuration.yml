@@ -20,14 +20,24 @@ http:
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+template: !include template.yaml
 
-
+# lovelace:
+#   mode: yaml
+#   resources:
+#     - url: /hacsfiles/button-card/button-card.js
+#       type: module
+#     - url: /hacsfiles/lovelace-layout-card/layout-card.js
+#       type: module
+#     - url: /hacsfiles/swipe-card/swipe-card.js
+#       type: module
+    
 ifttt:
   key: !secret IFTTT_API_KEY
 
 homeassistant:
   media_dirs:
-    local: /media
+    local: /config/media
 # rest:
 #   scan_interval: 15
 #   resource: http://192.168.1.254/api/v8/connection/
@@ -42,8 +52,123 @@ homeassistant:
 #         - "bandwidth_up"
 #         - "bandwidth_down"
 
+group:
+  all_echos:
+    name: All Echos
+    entities:
+      - media_player.mimmo_echo_5
+      - media_player.echo_dot_di_chiara
+      - media_player.quadro
+
+
+
+alexa:
+  smart_home:
+    entity_config:
+      switch.quadro_kiosk_screensaver:
+        name: "Screensaver fully kiosk"
+        description: "Screensaver fully kiosk"
+      input_boolean.screensaver_quadro_kiosk_browser:
+        name: "Screensaver wall panel"
+        description: "Screensaver wall panel"
+        display_categories: SWITCH
+      input_boolean.timer_spegnimento_toggle:
+        name: "Timer Spegnimento Desktop"
+        description: "Timer Spegnimento Desktop"
+        display_categories: SWITCH
+      sensor.desktop_cpuload:
+        name: "Jetson CPU LOAD"
+        description: "Jetson CPU LOAD"
+        display_categories: FAN
+      sensor.desktop_gputemperature:
+        name: "Jetson GPU TEMP"
+        description: "Jetson GPU TEMP"
+        display_categories: TEMPERATURE_SENSOR
+      sensor.desktop_u10f6bm_gpu_temperatures_gpu_core:
+        name: "Desktop GPU TEMP"
+        description: "JeDesktoptson GPU TEMP"
+        display_categories: TEMPERATURE_SENSOR
+      sensor.desktop_u10f6bm_cpu_temperatures_cpu_package:
+        name: "Desktop CPU TEMP"
+        description: "Desktop CPU TEMP"
+        display_categories: TEMPERATURE_SENSOR
+      button.desktop_shutdown:
+        name: "Desktop shutdown"
+      button.desktop_sleep:
+        name: "Desktop sleep"
+      button.quadro_kiosk_bring_to_foreground:
+        name: "Apri quadro (kiosk to foreground)"
+      button.quadro_kiosk_restart_browser:
+        name: "Riavvia quadro (kiosk restart browser)"
+      button.quadro_kiosk_send_to_backgroud:
+        name: "Chiudi quadro (kiosk to background)"
+
+    filter:
+    
+      include_entities:
+        - switch.quadro_kiosk_screensaver
+        - input_boolean.screensaver_quadro_kiosk_browser
+        - input_boolean.timer_spegnimento_toggle
+        - media_player.desktop
+        - sensor.desktop_cpuload
+        - sensor.desktop_gputemperature
+        - sensor.desktop_memoryusage
+        - sensor.desktop_u10f6bm_cpu_temperatures_cpu_package
+        - sensor.desktop_u10f6bm_gpu_temperatures_gpu_core
+        - sensor.tot_current_energy
+        - button.desktop_shutdown
+        - button.desktop_sleep
+        - button.quadro_kiosk_bring_to_foreground
+        - button.quadro_kiosk_restart_browser
+        - button.quadro_kiosk_send_to_background
+        - button.desktop_switch_mute_mic
+        
+      exclude_domains: 
+        - automation
+        - binary_sensor
+        - button
+        - calendar
+        - camera
+        - device_tracker
+        - input_boolean
+        - input_datetime
+        - input_number
+        - input_select
+        - input_text
+        - light
+        - media_player
+        - number
+        - person
+        - script
+        - sensor
+        - switch
+        - timer
+        - update
+        - weather
+        - zone
+  
+
 prometheus:
   namespace: hass
+  include_domains: 
+    - sensor
+    - binary_sensor
+    - switch
+    - light
+  exclude_entity_globs:
+      - sensor.weather_*
+      - sensor.desktop*
+
+#switch:
+  # - platform: tapo  # Forno
+  #   host: 192.168.1.74
+  #   username: !secret TAPO_USER
+  #   password: !secret TAPO_PWD
+  # - platform: tapo  # Tubo
+  #   host: 192.168.1.77
+  #   username: !secret TAPO_USER
+  #   password: !secret TAPO_PWD
+
 binary_sensor:
   - platform: ping
     host: 192.168.1.254
